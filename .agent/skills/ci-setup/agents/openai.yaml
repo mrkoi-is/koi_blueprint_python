@@ -1,0 +1,4 @@
+interface:
+  display_name: "CI Setup"
+  short_description: "Configure the standard CI pipeline"
+  default_prompt: "Use $ci-setup to configure the standard CI pipeline."

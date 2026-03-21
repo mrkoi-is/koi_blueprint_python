@@ -1,0 +1,4 @@
+interface:
+  display_name: "Alembic Migration"
+  short_description: "Generate and review Alembic migrations"
+  default_prompt: "Use $alembic-migration to generate or review a database migration."

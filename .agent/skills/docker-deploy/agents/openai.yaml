@@ -1,0 +1,4 @@
+interface:
+  display_name: "Docker Deploy"
+  short_description: "Prepare Docker deployment files"
+  default_prompt: "Use $docker-deploy to prepare Docker deployment assets."

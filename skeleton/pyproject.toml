@@ -1,0 +1,46 @@
+[project]
+name = "koi-service"
+version = "0.1.0"
+description = "Koi blueprint generated Python service"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.115,<1.0",
+  "uvicorn[standard]>=0.34,<1.0",
+  "pydantic-settings>=2.8,<3.0",
+  "PyJWT>=2.10,<3.0",
+  "structlog>=24.4,<26.0",
+  "SQLAlchemy>=2.0.36,<3.0",
+  "alembic>=1.14,<2.0",
+  "redis>=5.2,<6.0",
+]
+
+[dependency-groups]
+dev = [
+  "ruff>=0.11,<1.0",
+  "pyright>=1.1.400,<2.0",
+  "pytest>=8.3,<9.0",
+  "pytest-mock>=3.14,<4.0",
+  "testcontainers[postgres]>=4.10,<5.0",
+  "httpx>=0.28,<1.0",
+]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.pyright]
+pythonVersion = "3.12"
+typeCheckingMode = "strict"
+include = ["app", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
