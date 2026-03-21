@@ -316,7 +316,7 @@ class AppError(Exception):
         details: dict | None = None,
         headers: dict[str, str] | None = None,
     ):
-****        super().__init__(message)  # 确保 exc.args[0] == message，日志/Sentry 可正确读取
+        super().__init__(message)  # 确保 exc.args[0] == message，日志/Sentry 可正确读取
         self.message = message
         self.code = code
         self.status = status
@@ -962,19 +962,125 @@ make test
 
 ---
 
-## 9. 不在本方案范围内 (Out of Scope)
+## 9. 可观测性 (Observability)
+
+> 结构化日志 (§4.7) 已作为强制标准内置于 skeleton。以下为按需引入的进阶能力。
+
+### 9.1 三大支柱 (Three Pillars)
+
+| 支柱 | 推荐工具 | 级别 | 说明 |
+|---|---|---|---|
+| **Logs** | `structlog` | 强制 | 已内置，dev/prod 双模式 |
+| **Metrics** | `prometheus-fastapi-instrumentator` | 推荐 | 自动暴露 `/metrics`，零代码侵入 |
+| **Traces** | `opentelemetry-instrumentation-fastapi` | 试点 | 分布式链路追踪，适合微服务架构 |
+
+### 9.2 Metrics (Prometheus)
+
+skeleton 已包含 `app/core/metrics.py`，按需启用：
+
+```python
+# app/main.py — 在 create_app() 中添加
+from app.core.metrics import setup_metrics
+setup_metrics(app)
+```
+
+```bash
+uv add prometheus-fastapi-instrumentator
+```
+
+自动记录：请求总数、延迟直方图、活跃请求数、响应体大小。
+
+### 9.3 Distributed Tracing (OpenTelemetry)
+
+```bash
+uv add opentelemetry-api opentelemetry-sdk opentelemetry-instrumentation-fastapi
+uv add opentelemetry-exporter-otlp  # 导出到 Jaeger/Tempo
+```
+
+```python
+# app/core/tracing.py
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+
+def setup_tracing(app):
+    provider = TracerProvider()
+    trace.set_tracer_provider(provider)
+    FastAPIInstrumentor.instrument_app(app)
+```
+
+---
+
+## 10. 速率限制 (Rate Limiting)
+
+推荐使用 `slowapi`（基于 `limits` 库），通过 FastAPI 中间件实现。
+
+```bash
+uv add slowapi
+```
+
+```python
+# app/core/rate_limit.py
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.middleware import SlowAPIMiddleware
+
+limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
+
+def setup_rate_limiting(app):
+    app.state.limiter = limiter
+    app.add_middleware(SlowAPIMiddleware)
+```
+
+```python
+# 在 router 中使用
+from app.core.rate_limit import limiter
+
+@router.post("/login")
+@limiter.limit("5/minute")
+def login(request: Request, payload: LoginSchema):
+    ...
+```
+
+---
+
+## 11. API 版本管理 (API Versioning)
+
+### 策略：路由前缀共存
+
+```python
+# app/main.py
+app.include_router(device_router_v1, prefix="/api/v1")
+app.include_router(device_router_v2, prefix="/api/v2")
+```
+
+### 废弃流程
+
+1. 新版本 Router 上线，旧版本添加 `Deprecation` Header
+2. 旧版本返回 `Sunset: <date>` Header 通知调用方
+3. 监控旧版本流量，流量归零后下线
+
+```python
+@router.get("/devices", deprecated=True)  # OpenAPI 标记废弃
+def list_devices_v1(...):
+    response.headers["Deprecation"] = "true"
+    response.headers["Sunset"] = "2026-06-01"
+    ...
+```
+
+---
+
+## 12. 不在本方案范围内 (Out of Scope)
 
 以下内容需另行规划：
 
 | 主题 | 说明 |
 |---|---|
 | **各项目落地计划** | 方案确定后，根据各项目现状制定分阶段迁移计划 |
-| **CI/CD 流水线详设** | GitHub Actions / GitLab CI 的具体 YAML 配置 |
-| **容器编排与部署** | Kubernetes / Docker Compose 生产部署策略 |
-| **API 版本管理** | `/v1` → `/v2` 路由共存与废弃策略 |
+| **容器编排与部署** | Kubernetes 生产部署策略 |
 | **性能基准** | 当前架构 vs 新架构的 QPS / 延迟对比测试 |
 | **数据库迁移兼容** | 新旧 ORM 风格共存期间的 Alembic 迁移脚本策略 |
 
 ---
 
-*文档版本：3.4 (2026/03) - Enterprise Arch Edition*
+*文档版本：4.0 (2026/03) - Enterprise Arch Edition + Observability + Security*

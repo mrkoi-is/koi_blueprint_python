@@ -3,6 +3,8 @@ name: ci-setup
 description: Configure the standard Koi CI pipeline for a Python service. Use when creating or updating GitHub Actions workflows for linting, type checking, tests, Docker builds, or optional publish and deploy stages.
 ---
 
+> 适配 `docs/architecture.md` v4.0
+
 Use `assets/ci.template.yml` as the starting point.
 
 Workflow:

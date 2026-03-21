@@ -3,6 +3,8 @@ name: docker-deploy
 description: Prepare Docker deployment assets for a Koi-standard Python service. Use when adding or updating Dockerfile, docker-compose files, dockerignore rules, or local container-based verification steps.
 ---
 
+> 适配 `docs/architecture.md` v4.0
+
 Use `assets/docker-compose.template.yml` as the default local composition template.
 
 Workflow:

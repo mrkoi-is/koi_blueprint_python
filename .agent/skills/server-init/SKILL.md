@@ -3,6 +3,8 @@ name: server-init
 description: Scaffold a new Koi-standard Python service from the koi_blueprint_python repository. Use when creating a new Python/FastAPI backend, bootstrapping a fresh repository, copying the standard skeleton, installing baseline dependencies, and verifying /health and initial tests.
 ---
 
+> 适配 `docs/architecture.md` v4.0
+
 Use `scripts/apply_skeleton.py` to copy `skeleton/` into the target project root.
 
 Workflow:

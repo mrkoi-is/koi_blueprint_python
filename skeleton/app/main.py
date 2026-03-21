@@ -14,11 +14,19 @@ from app.core.logging import setup_logging
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    setup_logging()
+    # Startup：此处管理需要异步初始化的长连接资源
+    # engine = create_engine(str(settings.database_url), pool_size=5, max_overflow=10)
+    # redis_client = redis.from_url(settings.redis_url)
     yield
+    # Shutdown
+    # engine.dispose()
+    # redis_client.close()
 
 
 def create_app() -> FastAPI:
+    # 日志在进程启动时立即初始化，早于任何模块级日志调用
+    setup_logging()
+
     app = FastAPI(title=settings.app_name, debug=settings.debug, lifespan=lifespan)
 
     app.add_middleware(
@@ -43,7 +51,7 @@ def create_app() -> FastAPI:
         return await call_next(request)
 
     api_prefix = "/api/v1"
-    # register domain routers here
+    # 在此注册领域路由 / register domain routers here
     # app.include_router(example_router, prefix=api_prefix)
     _ = api_prefix
 

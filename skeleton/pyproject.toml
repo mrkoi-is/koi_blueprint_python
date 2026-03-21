@@ -11,6 +11,7 @@ dependencies = [
   "PyJWT>=2.10,<3.0",
   "structlog>=24.4,<26.0",
   "SQLAlchemy>=2.0.36,<3.0",
+  "psycopg[binary]>=3.2,<4.0",
   "alembic>=1.14,<2.0",
   "redis>=5.2,<6.0",
 ]
@@ -21,8 +22,11 @@ dev = [
   "pyright>=1.1.400,<2.0",
   "pytest>=8.3,<9.0",
   "pytest-mock>=3.14,<4.0",
+  "pytest-cov>=6.0,<7.0",
   "testcontainers[postgres]>=4.10,<5.0",
   "httpx>=0.28,<1.0",
+  "bandit>=1.8,<2.0",
+  "pip-audit>=2.7,<3.0",
 ]
 
 [build-system]
@@ -30,17 +34,29 @@ requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [tool.ruff]
-target-version = "py312"
+target-version = "py313"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF", "S"]
+# S = flake8-bandit rules via ruff (security linting)
 
 [tool.pyright]
-pythonVersion = "3.12"
+pythonVersion = "3.13"
 typeCheckingMode = "strict"
 include = ["app", "tests"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q"
+addopts = "-q --tb=short"
+markers = [
+    "unit: 单元测试 (无须外部依赖)",
+    "integration: 集成测试 (需要 Docker / 数据库)",
+]
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["*/migrations/*"]
+
+[tool.coverage.report]
+show_missing = true

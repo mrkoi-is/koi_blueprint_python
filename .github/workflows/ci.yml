@@ -1,8 +1,12 @@
-name: CI
+name: Blueprint CI
 
 on:
   push:
   pull_request:
+
+defaults:
+  run:
+    working-directory: skeleton
 
 jobs:
   quality:
@@ -41,4 +45,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Docker build
-        run: docker build -t app:${{ github.sha }} .
+        run: docker build -t koi-service:${{ github.sha }} .
+        working-directory: skeleton

@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.python-version
+.pytest_cache/
+.mypy_cache/
+.pyright/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+
+# Build
+build/
+dist/
+*.egg-info/
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# Docs / Meta
+*.md
+LICENSE
+Makefile
+.pre-commit-config.yaml
+.editorconfig
+
+# Tests (不需要在生产镜像中)
+tests/

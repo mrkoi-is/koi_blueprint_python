@@ -3,6 +3,8 @@ name: add-domain-module
 description: Scaffold a new Koi-standard domain module inside an existing Python service. Use when adding a new business module under `app/domain/`, creating router/schema/model/service/repository files, wiring router registration, and generating matching test stubs.
 ---
 
+> 适配 `docs/architecture.md` v4.0
+
 Use `scripts/scaffold_domain.py <project-root> <module-name>` for deterministic scaffolding.
 
 After scaffolding:
