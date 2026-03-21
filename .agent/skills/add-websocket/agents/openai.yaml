@@ -1,0 +1,7 @@
+interface:
+  display_name: "Add WebSocket"
+  short_description: "Add real-time WebSocket support"
+  default_prompt: "Use $add-websocket to add or review WebSocket support in this Python service."
+
+policy:
+  allow_implicit_invocation: true

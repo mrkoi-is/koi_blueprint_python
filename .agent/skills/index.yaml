@@ -1,0 +1,192 @@
+schema_version: "1"
+architecture_version: "v4.0"
+python_version: "3.13+"
+source_of_truth: ".agent/skills/<skill-id>/SKILL.md"
+quickstart: "docs/ai-quickstart.md"
+global_rules: "AGENTS.md"
+architecture_doc: "docs/architecture.md"
+skills_root: ".agent/skills"
+default_flow:
+  - "read SKILL.md"
+  - "read references when needed"
+  - "run scripts when available"
+  - "modify project files"
+  - "run validation commands"
+routing:
+  - skill: "server-init"
+    keywords: ["new project", "bootstrap", "skeleton", "init service", "server init", "初始化新项目", "bootstrap 项目", "从 skeleton 初始化"]
+  - skill: "add-domain-module"
+    keywords: ["domain module", "router service repo", "new module", "领域模块", "新增模块", "router+service+repo"]
+  - skill: "add-infra-adapter"
+    keywords: ["infra adapter", "redis", "s3", "external sdk", "基础设施适配器", "外部服务接入", "第三方 sdk"]
+  - skill: "alembic-migration"
+    keywords: ["alembic", "migration", "revision", "数据库迁移", "生成迁移", "revision 审核"]
+  - skill: "ci-setup"
+    keywords: ["github actions", "ci", "workflow", "流水线", "持续集成"]
+  - skill: "docker-deploy"
+    keywords: ["docker", "compose", "deploy", "部署资产", "容器化"]
+  - skill: "add-background-task"
+    keywords: ["celery", "arq", "backgroundtasks", "background task", "worker", "后台任务", "队列", "异步任务"]
+  - skill: "add-websocket"
+    keywords: ["websocket", "realtime", "live notification", "实时通信", "推送", "ws"]
+  - skill: "add-observability"
+    keywords: ["prometheus", "otel", "opentelemetry", "tracing", "metrics", "可观测性", "指标", "追踪"]
+  - skill: "architecture-review"
+    keywords: ["architecture review", "audit", "koi standard", "架构审查", "审核项目", "对照规范"]
+  - skill: "testing-scaffold"
+    keywords: ["pytest", "unit test", "integration test", "测试骨架", "补测试", "测试布局"]
+  - skill: "auth-rbac-setup"
+    keywords: ["jwt", "rbac", "auth", "鉴权", "角色权限", "401", "403"]
+  - skill: "production-hardening"
+    keywords: ["production hardening", "readiness", "上线检查", "生产加固", "发布前检查"]
+  - skill: "async-upgrade"
+    keywords: ["async upgrade", "asyncsession", "websocket ready", "异步升级", "同步改异步", "asyncpg"]
+  - skill: "api-versioning"
+    keywords: ["api versioning", "v1", "v2", "deprecation", "接口版本", "版本迁移"]
+  - skill: "rate-limit-setup"
+    keywords: ["rate limit", "429", "slowapi", "限流", "节流"]
+skills:
+  - id: "add-background-task"
+    path: ".agent/skills/add-background-task"
+    entry: ".agent/skills/add-background-task/SKILL.md"
+    display_name: "Add Background Task"
+    description: "Add background task infrastructure to a Koi-standard Python service. Use when choosing between FastAPI BackgroundTasks, ARQ, or Celery, wiring workers and queues, defining retry/idempotency strategy, and testing asynchronous job flows."
+    resources:
+      references: [".agent/skills/add-background-task/references/fastapi-backgroundtasks-patterns.md", ".agent/skills/add-background-task/references/queue-worker-patterns.md", ".agent/skills/add-background-task/references/strategy-guide.md"]
+      scripts: [".agent/skills/add-background-task/scripts/inspect_background_task_surface.py"]
+      assets: []
+  - id: "add-domain-module"
+    path: ".agent/skills/add-domain-module"
+    entry: ".agent/skills/add-domain-module/SKILL.md"
+    display_name: "Add Domain Module"
+    description: "Scaffold a new Koi-standard domain module inside an existing Python service. Use when adding a business module under `app/domain/`, generating router/schema/model/service/repository files, wiring router registration, and creating aligned unit or integration test stubs."
+    resources:
+      references: [".agent/skills/add-domain-module/references/domain-patterns.md"]
+      scripts: [".agent/skills/add-domain-module/scripts/scaffold_domain.py"]
+      assets: []
+  - id: "add-infra-adapter"
+    path: ".agent/skills/add-infra-adapter"
+    entry: ".agent/skills/add-infra-adapter/SKILL.md"
+    display_name: "Add Infra Adapter"
+    description: "Scaffold a new Koi-style infrastructure adapter under `app/infra/`. Use when integrating Redis, object storage, MQTT, mail, third-party APIs, or another external service through abstract ports, concrete implementations, memory doubles, and dependency wiring."
+    resources:
+      references: [".agent/skills/add-infra-adapter/references/adapter-patterns.md"]
+      scripts: [".agent/skills/add-infra-adapter/scripts/scaffold_adapter.py"]
+      assets: []
+  - id: "add-observability"
+    path: ".agent/skills/add-observability"
+    entry: ".agent/skills/add-observability/SKILL.md"
+    display_name: "Add Observability"
+    description: "Add observability infrastructure to a Koi-standard Python service. Use when wiring Prometheus metrics, OpenTelemetry tracing, OTLP or Jaeger export, local observability compose assets, and verifying logs/metrics/traces coverage for production services."
+    resources:
+      references: [".agent/skills/add-observability/references/metrics-checklist.md", ".agent/skills/add-observability/references/tracing-checklist.md"]
+      scripts: [".agent/skills/add-observability/scripts/inspect_observability_surface.py"]
+      assets: [".agent/skills/add-observability/assets/docker-compose.observability.template.yml", ".agent/skills/add-observability/assets/prometheus.yml"]
+  - id: "add-websocket"
+    path: ".agent/skills/add-websocket"
+    entry: ".agent/skills/add-websocket/SKILL.md"
+    display_name: "Add WebSocket"
+    description: "Add WebSocket support to a Koi-standard Python service. Use when implementing chat, live notifications, device status streaming, collaborative sessions, connection managers, authentication for websocket endpoints, and real-time integration tests."
+    resources:
+      references: [".agent/skills/add-websocket/references/websocket-auth-and-testing.md", ".agent/skills/add-websocket/references/websocket-patterns.md"]
+      scripts: [".agent/skills/add-websocket/scripts/inspect_websocket_surface.py"]
+      assets: []
+  - id: "alembic-migration"
+    path: ".agent/skills/alembic-migration"
+    entry: ".agent/skills/alembic-migration/SKILL.md"
+    display_name: "Alembic Migration"
+    description: "Generate, review, and apply Alembic migrations in a Koi-standard Python service. Use when ORM models change, when you need a new revision, when autogenerate must be reviewed manually, or when migration execution needs to be aligned with local and deployment workflows."
+    resources:
+      references: [".agent/skills/alembic-migration/references/migration-checklist.md"]
+      scripts: []
+      assets: []
+  - id: "api-versioning"
+    path: ".agent/skills/api-versioning"
+    entry: ".agent/skills/api-versioning/SKILL.md"
+    display_name: "API Versioning"
+    description: "Add or review API versioning in a Koi-standard Python service. Use when introducing versioned route prefixes such as /api/v1 and /api/v2, evolving contracts without breaking clients, deprecating endpoints, or auditing router registration and migration strategy for FastAPI services."
+    resources:
+      references: [".agent/skills/api-versioning/references/migration-strategies.md", ".agent/skills/api-versioning/references/versioning-checklist.md"]
+      scripts: [".agent/skills/api-versioning/scripts/inspect_versioning_surface.py"]
+      assets: [".agent/skills/api-versioning/assets/versioning-plan-template.md"]
+  - id: "architecture-review"
+    path: ".agent/skills/architecture-review"
+    entry: ".agent/skills/architecture-review/SKILL.md"
+    display_name: "Architecture Review"
+    description: "Audit a Python/FastAPI service against the Koi architecture standard. Use when reviewing project structure, dependency direction, lifecycle setup, configuration, exceptions, logging, auth, repository/UoW, testing, CI, or Docker alignment with docs/architecture.md."
+    resources:
+      references: [".agent/skills/architecture-review/references/review-checklist.md"]
+      scripts: [".agent/skills/architecture-review/scripts/collect_review_inputs.py"]
+      assets: [".agent/skills/architecture-review/assets/review-report-template.md"]
+  - id: "async-upgrade"
+    path: ".agent/skills/async-upgrade"
+    entry: ".agent/skills/async-upgrade/SKILL.md"
+    display_name: "Async Upgrade"
+    description: "Upgrade a Koi-standard Python service from sync-first patterns to async-ready architecture. Use when introducing AsyncSession, create_async_engine, async repositories, async unit of work, async route handlers, websocket-ready flows, or when auditing sync/async boundaries in FastAPI services."
+    resources:
+      references: [".agent/skills/async-upgrade/references/async-migration-checklist.md", ".agent/skills/async-upgrade/references/sync-async-boundaries.md"]
+      scripts: [".agent/skills/async-upgrade/scripts/inspect_async_surface.py"]
+      assets: [".agent/skills/async-upgrade/assets/async-migration-plan.md"]
+  - id: "auth-rbac-setup"
+    path: ".agent/skills/auth-rbac-setup"
+    entry: ".agent/skills/auth-rbac-setup/SKILL.md"
+    display_name: "Auth RBAC Setup"
+    description: "Add or review JWT auth and role-based access control in a Koi-standard Python service. Use when wiring get_current_user, get_optional_user, require_role, auth-related exception handling, protected routes, or auth unit tests."
+    resources:
+      references: [".agent/skills/auth-rbac-setup/references/auth-checklist.md", ".agent/skills/auth-rbac-setup/references/auth-test-patterns.md"]
+      scripts: [".agent/skills/auth-rbac-setup/scripts/inspect_auth_surface.py"]
+      assets: [".agent/skills/auth-rbac-setup/assets/auth-route-example.md"]
+  - id: "ci-setup"
+    path: ".agent/skills/ci-setup"
+    entry: ".agent/skills/ci-setup/SKILL.md"
+    display_name: "CI Setup"
+    description: "Configure the standard Koi CI pipeline for a Python service. Use when creating or updating GitHub Actions workflows for Ruff, pyright, pytest, security scanning, Docker builds, optional image publishing, and repository quality gates."
+    resources:
+      references: [".agent/skills/ci-setup/references/ci-options.md"]
+      scripts: []
+      assets: [".agent/skills/ci-setup/assets/ci.template.yml"]
+  - id: "docker-deploy"
+    path: ".agent/skills/docker-deploy"
+    entry: ".agent/skills/docker-deploy/SKILL.md"
+    display_name: "Docker Deploy"
+    description: "Prepare Docker deployment assets for a Koi-standard Python service. Use when adding or updating Dockerfile, docker-compose files, `.dockerignore`, runtime env wiring, image verification steps, and local container-based smoke tests."
+    resources:
+      references: [".agent/skills/docker-deploy/references/deploy-checklist.md"]
+      scripts: []
+      assets: [".agent/skills/docker-deploy/assets/docker-compose.template.yml"]
+  - id: "production-hardening"
+    path: ".agent/skills/production-hardening"
+    entry: ".agent/skills/production-hardening/SKILL.md"
+    display_name: "Production Hardening"
+    description: "Harden a Koi-standard Python service for production readiness. Use when improving Docker images, environment safety, health/readiness endpoints, metrics, logging, security scans, dependency pinning, CI quality gates, deployment assets, or operational checklists."
+    resources:
+      references: [".agent/skills/production-hardening/references/deploy-readiness.md", ".agent/skills/production-hardening/references/hardening-checklist.md"]
+      scripts: [".agent/skills/production-hardening/scripts/inspect_production_surface.py"]
+      assets: [".agent/skills/production-hardening/assets/hardening-report-template.md"]
+  - id: "rate-limit-setup"
+    path: ".agent/skills/rate-limit-setup"
+    entry: ".agent/skills/rate-limit-setup/SKILL.md"
+    display_name: "Rate Limit Setup"
+    description: "Add or review rate limiting in a Koi-standard Python service. Use when protecting public or high-risk endpoints, introducing slowapi or equivalent middleware, configuring per-route throttling, exempting health/metrics endpoints, or adding tests for 429 behavior in FastAPI services."
+    resources:
+      references: [".agent/skills/rate-limit-setup/references/rate-limit-checklist.md", ".agent/skills/rate-limit-setup/references/route-priority-guide.md"]
+      scripts: [".agent/skills/rate-limit-setup/scripts/inspect_rate_limit_surface.py"]
+      assets: [".agent/skills/rate-limit-setup/assets/rate-limit-plan-template.md"]
+  - id: "server-init"
+    path: ".agent/skills/server-init"
+    entry: ".agent/skills/server-init/SKILL.md"
+    display_name: "Server Init"
+    description: "Scaffold a new Koi-standard Python service from the koi_blueprint_python repository. Use when creating a new FastAPI backend, bootstrapping a repository from `skeleton/`, syncing baseline dependencies, and verifying the initial health endpoint, lint, type checks, and tests."
+    resources:
+      references: [".agent/skills/server-init/references/bootstrap-checklist.md"]
+      scripts: [".agent/skills/server-init/scripts/apply_skeleton.py"]
+      assets: []
+  - id: "testing-scaffold"
+    path: ".agent/skills/testing-scaffold"
+    entry: ".agent/skills/testing-scaffold/SKILL.md"
+    display_name: "Testing Scaffold"
+    description: "Add or improve tests in a Koi-standard Python service. Use when scaffolding unit tests, integration tests, Testcontainers fixtures, MemoryRepository-based service tests, pytest markers, or coverage/quality checks for FastAPI services."
+    resources:
+      references: [".agent/skills/testing-scaffold/references/testing-patterns.md"]
+      scripts: [".agent/skills/testing-scaffold/scripts/inspect_test_surface.py"]
+      assets: [".agent/skills/testing-scaffold/assets/test-plan-template.md"]

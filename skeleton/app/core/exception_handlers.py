@@ -22,7 +22,7 @@ async def validation_error_handler(request: Request, exc: RequestValidationError
     return JSONResponse(
         status_code=422,
         content={
-            "code": "VALIDATION_ERROR",
+            "code": 422,
             "message": "Request validation failed",
             "details": exc.errors(),
             "path": str(request.url.path),

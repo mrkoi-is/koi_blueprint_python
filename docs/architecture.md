@@ -78,7 +78,7 @@
 
 | 级别 | 含义 | 技术项 |
 |---|---|---|
-| **强制** | 所有项目必须遵守 | `uv`、`Ruff`、`pyproject.toml`、`pyright`、`pydantic-settings`、FastAPI (新项目)、`structlog`、App Factory、统一异常体系、领域化目录结构 |
+| **强制** | 所有项目必须遵守 | **Python 3.13+**、`uv`、`Ruff`、`pyproject.toml`、`pyright`、`pydantic-settings`、FastAPI (新项目)、`structlog`、App Factory、统一异常体系、领域化目录结构 |
 | **推荐** | 默认采用，经审批可豁免 | `SQLAlchemy 2.0 Mapped`、Repository 模式、Unit of Work、Testcontainers、`ApiResponse` 统一包装、Pydantic DTO (API 边界层) |
 | **试点** | 允许在非核心项目中验证 | `ty` 类型检查器、`Litestar` 框架 |
 | **例外** | 仅限存量项目维护 | Flask 3.x + Marshmallow、旧式 `db.Column` ORM |
@@ -89,14 +89,14 @@
 
 独立维护版本策略，避免每次 Python 小版本升级都修改主架构文档。模板示例中出现的具体版本号（如 `3.13`）均以本表策略为准。
 
+本蓝图为**新架构、尚无存量项目**：**不**再声明对旧版 Python 的兼容；**仅支持 Python 3.13+**（`requires-python = ">=3.13"`）。低于 3.13 的环境不在支持范围内。
+
 | 策略项 | 当前值 | 说明 |
 |---|---|---|
-| **组织基线版本** | Python 3.12+ | 所有在维项目的最低运行版本要求，低于此版本不再提供支持 |
-| **新项目优先版本** | Python 3.13 | 新建项目使用的推荐版本，与当前 CPython 稳定版保持一致 |
-| **兼容窗口** | 当前稳定版 ± 1 | 同时支持前一个和当前稳定大版本，确保升级过渡期存量项目正常运行 |
-| **升级节奏** | 每年 Q1 评估 | 随 CPython 年度发布节奏，每年第一季度评估是否将新版本设为优先版本 |
+| **组织基线版本** | **Python 3.13+** | 运行与 CI 的最低版本；**不支持** 3.12 及以下 |
+| **升级节奏** | 每年 Q1 评估 | 新版本 CPython（如 3.14）发布后，评估是否将基线上调并更新 `requires-python` |
 
-> 当 CPython 发布新稳定版后，由架构组评估后更新本表，无需修改其他章节。
+> 当 CPython 发布新稳定版后，由架构组评估后更新本表。
 
 ---
 
@@ -122,7 +122,8 @@
 │   │   ├── responses.py      ── 标准 API 响应 DTO (ApiResponse[T])
 │   │   ├── logging.py        ── structlog 初始化，dev/prod 双模式输出
 │   │   ├── auth.py           ── JWT 验签、get_current_user 依赖提取器
-│   │   ├── dependencies.py   ── 通用 DI 提取器 (get_db_session, get_redis)
+│   │   ├── db.py             ── 共享 SQLAlchemy Declarative Base
+│   │   ├── dependencies.py   ── 通用 DI 提取器 (get_session_factory, get_db_session, get_uow)
 │   │   ├── uow.py            ── Unit of Work 抽象接口
 │   │   └── pagination.py     ── 分页参数与分页响应 DTO
 │   │
@@ -307,11 +308,16 @@ settings = Settings()
 ```python
 # app/core/exceptions.py
 class AppError(Exception):
-    """所有业务异常的基类"""
+    """所有业务异常的基类
+
+    code 规则:
+    - 默认值 = HTTP 状态码（如 404、500）
+    - 业务细分 = HTTP 状态码 × 100 + 序号（如 40401 = 用户不存在）
+    """
     def __init__(
         self,
         message: str,
-        code: str = "INTERNAL_ERROR",
+        code: int = 500,
         status: int = 500,
         details: dict | None = None,
         headers: dict[str, str] | None = None,
@@ -324,26 +330,26 @@ class AppError(Exception):
         self.headers = headers
 
 class NotFoundError(AppError):
-    def __init__(self, message: str = "Resource not found"):
-        super().__init__(message, code="NOT_FOUND", status=404)
+    def __init__(self, message: str = "Resource not found", code: int = 404):
+        super().__init__(message, code=code, status=404)
 
 class ConflictError(AppError):
-    def __init__(self, message: str = "Resource already exists"):
-        super().__init__(message, code="CONFLICT", status=409)
+    def __init__(self, message: str = "Resource already exists", code: int = 409):
+        super().__init__(message, code=code, status=409)
 
 class AuthenticationError(AppError):
-    def __init__(self, message: str = "Authentication required"):
-        super().__init__(message, code="UNAUTHORIZED", status=401,
+    def __init__(self, message: str = "Authentication required", code: int = 401):
+        super().__init__(message, code=code, status=401,
                          headers={"WWW-Authenticate": "Bearer"})
 
 class ForbiddenError(AppError):
-    def __init__(self, message: str = "Permission denied"):
-        super().__init__(message, code="FORBIDDEN", status=403)
+    def __init__(self, message: str = "Permission denied", code: int = 403):
+        super().__init__(message, code=code, status=403)
 
 class BusinessValidationError(AppError):
     """业务校验错误（与 Pydantic 的 ValidationError 区分）"""
-    def __init__(self, message: str = "Validation failed", details: dict | None = None):
-        super().__init__(message, code="BUSINESS_VALIDATION_ERROR", status=422, details=details)
+    def __init__(self, message: str = "Validation failed", code: int = 422, details: dict | None = None):
+        super().__init__(message, code=code, status=422, details=details)
 ```
 
 ```python
@@ -370,7 +376,7 @@ async def validation_error_handler(request: Request, exc: RequestValidationError
     return JSONResponse(
         status_code=422,
         content={
-            "code": "VALIDATION_ERROR",
+            "code": 422,
             "message": "Request validation failed",
             "details": exc.errors(),
             "path": str(request.url),
@@ -390,7 +396,7 @@ from pydantic import BaseModel
 T = TypeVar("T")
 
 class ApiResponse(BaseModel, Generic[T]):
-    code: int = 0
+    code: int = 200
     message: str = "ok"
     data: T | None = None
 
@@ -438,12 +444,14 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import jwt
 from app.config import settings
 
-bearer_scheme = HTTPBearer()
+bearer_scheme = HTTPBearer(auto_error=False)
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
 ) -> dict:
     """解码 JWT，返回 payload。验证失败抛出 AuthenticationError。"""
+    if credentials is None:
+        raise AuthenticationError()
     try:
         payload = jwt.decode(
             credentials.credentials,
@@ -635,17 +643,27 @@ from collections.abc import Generator
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-def get_db_session() -> Generator[Session, None, None]:
+from collections.abc import Callable
+from fastapi import Depends, Request
+from sqlalchemy.orm import Session, sessionmaker
+
+def get_session_factory(request: Request) -> sessionmaker[Session]:
+    return request.app.state.session_factory
+
+def get_db_session(request: Request) -> Generator[Session, None, None]:
     """简单读操作可直接注入 Session"""
-    session = SessionLocal()
+    session_factory = get_session_factory(request)
+    session = session_factory()
     try:
         yield session
     finally:
         session.close()
 
-def get_device_uow() -> DeviceUnitOfWork:
+def get_device_uow(
+    session_factory: Callable[[], Session] = Depends(get_session_factory),
+) -> DeviceUnitOfWork:
     """写操作通过 UoW 管理事务与 Repository"""
-    return DeviceUnitOfWork(SessionLocal)
+    return DeviceUnitOfWork(session_factory)
 
 def get_device_service(uow: DeviceUnitOfWork = Depends(get_device_uow)) -> DeviceService:
     return DeviceService(uow)
@@ -913,7 +931,7 @@ uv add --group dev ruff pyright pytest pytest-mock testcontainers[postgres]
 ### 7.3 初始化 Alembic
 ```bash
 uv run alembic init migrations
-# 编辑 migrations/env.py，导入项目的 Base.metadata
+# 编辑 migrations/env.py，导入 `app.core.db.Base.metadata`
 ```
 
 ### 7.4 注入脚手架规范
@@ -1083,4 +1101,4 @@ def list_devices_v1(...):
 
 ---
 
-*文档版本：4.0 (2026/03) - Enterprise Arch Edition + Observability + Security*
+*文档版本：0.0.1 (2026/03) — 草案 / 未正式发布；正式发布后改为语义化版本（如 1.0.0）。Enterprise Arch Edition + Observability + Security*

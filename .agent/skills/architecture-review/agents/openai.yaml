@@ -1,0 +1,7 @@
+interface:
+  display_name: "Architecture Review"
+  short_description: "Audit a project against Koi architecture"
+  default_prompt: "Use $architecture-review to audit this Python service against the Koi standard."
+
+policy:
+  allow_implicit_invocation: true

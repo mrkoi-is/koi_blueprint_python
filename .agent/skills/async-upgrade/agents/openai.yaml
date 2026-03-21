@@ -1,0 +1,7 @@
+interface:
+  display_name: "Async Upgrade"
+  short_description: "Upgrade a service to async architecture"
+  default_prompt: "Use $async-upgrade to migrate this Python service toward async-ready patterns."
+
+policy:
+  allow_implicit_invocation: true

@@ -1,8 +1,15 @@
 class AppError(Exception):
+    """统一业务异常基类。
+
+    code 规则:
+    - 默认值 = HTTP 状态码（如 404、500）
+    - 业务细分 = HTTP 状态码 × 100 + 序号（如 40401 = 用户不存在、40402 = 订单不存在）
+    """
+
     def __init__(
         self,
         message: str,
-        code: str = "INTERNAL_ERROR",
+        code: int = 500,
         status: int = 500,
         details: dict | None = None,
         headers: dict[str, str] | None = None,
@@ -16,35 +23,35 @@ class AppError(Exception):
 
 
 class NotFoundError(AppError):
-    def __init__(self, message: str = "Resource not found") -> None:
-        super().__init__(message=message, code="NOT_FOUND", status=404)
+    def __init__(self, message: str = "Resource not found", code: int = 404) -> None:
+        super().__init__(message=message, code=code, status=404)
 
 
 class ConflictError(AppError):
-    def __init__(self, message: str = "Resource already exists") -> None:
-        super().__init__(message=message, code="CONFLICT", status=409)
+    def __init__(self, message: str = "Resource already exists", code: int = 409) -> None:
+        super().__init__(message=message, code=code, status=409)
 
 
 class AuthenticationError(AppError):
-    def __init__(self, message: str = "Authentication required") -> None:
+    def __init__(self, message: str = "Authentication required", code: int = 401) -> None:
         super().__init__(
             message=message,
-            code="UNAUTHORIZED",
+            code=code,
             status=401,
             headers={"WWW-Authenticate": "Bearer"},
         )
 
 
 class ForbiddenError(AppError):
-    def __init__(self, message: str = "Permission denied") -> None:
-        super().__init__(message=message, code="FORBIDDEN", status=403)
+    def __init__(self, message: str = "Permission denied", code: int = 403) -> None:
+        super().__init__(message=message, code=code, status=403)
 
 
 class BusinessValidationError(AppError):
-    def __init__(self, message: str = "Validation failed", details: dict | None = None) -> None:
-        super().__init__(
-            message=message,
-            code="BUSINESS_VALIDATION_ERROR",
-            status=422,
-            details=details,
-        )
+    def __init__(
+        self,
+        message: str = "Validation failed",
+        code: int = 422,
+        details: dict | None = None,
+    ) -> None:
+        super().__init__(message=message, code=code, status=422, details=details)

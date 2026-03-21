@@ -1,0 +1,7 @@
+interface:
+  display_name: "Rate Limit Setup"
+  short_description: "Add or review API rate limiting"
+  default_prompt: "Use $rate-limit-setup to add or review rate limiting in this Python service."
+
+policy:
+  allow_implicit_invocation: true

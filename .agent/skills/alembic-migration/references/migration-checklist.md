@@ -1,7 +1,33 @@
 # Migration Checklist
 
-- Confirm metadata import is correct
-- Review column type changes carefully
-- Review index and constraint changes
-- Ensure downgrade is meaningful
-- Apply locally before merging
+## 1. 生成前检查
+
+- `migrations/env.py` 是否指向正确 metadata
+- `database_url` 与运行环境是否一致
+- 模型变更是否已经稳定，不再频繁改名
+
+## 2. 自动生成后必查项
+
+- 表 / 列新增是否符合预期
+- 列类型修改是否安全
+- 默认值、非空约束是否会影响线上数据
+- 索引、唯一约束、外键是否正确生成
+- 重命名是否被误识别为删表删列再重建
+
+## 3. upgrade / downgrade 审核
+
+- `upgrade()` 是否真实表达变更意图
+- `downgrade()` 是否可执行且语义明确
+- 对不可逆操作要显式说明，不要伪造回滚
+
+## 4. 应用验证
+
+- 本地执行 `alembic upgrade head`
+- 启动应用确认 ORM 与数据库一致
+- 必要时验证回滚路径或备份策略
+
+## 5. 发布约束
+
+- 生产迁移应由部署流程显式触发
+- 破坏性变更要有灰度 / 回填 / 备份方案
+- 不要把迁移逻辑偷偷塞进应用启动流程

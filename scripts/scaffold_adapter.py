@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
-"""在现有项目中脚手架一个新的基础设施适配器。
+"""在现有项目中脚手架一个新的基础设施适配器。"""
 
-用法:
-    python scripts/scaffold_adapter.py <project-root> <adapter-name> <implementation-name>
+from __future__ import annotations
 
-示例:
-    python scripts/scaffold_adapter.py /path/to/my-service cache redis
-    → 生成 app/infra/cache.py (抽象接口 + Redis 实现 + Memory 替身)
-"""
 import argparse
 import sys
 import textwrap
@@ -18,84 +13,110 @@ def to_pascal(name: str) -> str:
     return "".join(w.capitalize() for w in name.split("_"))
 
 
+def _write(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+
+
 def scaffold_adapter(project_root: Path, adapter_name: str, impl_name: str) -> None:
-    infra_dir = project_root / "app" / "infra"
+    adapter_dir = project_root / "app" / "infra" / adapter_name
     test_dir = project_root / "tests" / "unit"
 
-    infra_dir.mkdir(parents=True, exist_ok=True)
-    test_dir.mkdir(parents=True, exist_ok=True)
-
-    adapter_file = infra_dir / f"{adapter_name}.py"
-    if adapter_file.exists():
-        print(f"❌ 适配器文件已存在: {adapter_file}", file=sys.stderr)
+    if adapter_dir.exists():
+        print(f"❌ 适配器目录已存在: {adapter_dir}", file=sys.stderr)
         sys.exit(1)
 
     pascal_adapter = to_pascal(adapter_name)
     pascal_impl = to_pascal(impl_name)
 
-    content = textwrap.dedent(f"""\
-        \"\"\"基础设施适配器: {adapter_name}
+    files: dict[Path, str] = {
+        adapter_dir / "__init__.py": textwrap.dedent(
+            f"""\
+            from .abstract import Abstract{pascal_adapter}
+            from .{impl_name} import {pascal_impl}{pascal_adapter}
+            from .memory import Memory{pascal_adapter}
 
-        抽象接口 + {impl_name} 实现 + Memory 替身
-        \"\"\"
-        from abc import ABC, abstractmethod
-        from typing import Any
-
-
-        class Abstract{pascal_adapter}(ABC):
-            \"\"\"抽象接口 — Service 层只依赖此接口\"\"\"
-
-            @abstractmethod
-            def get(self, key: str) -> Any | None: ...
-
-            @abstractmethod
-            def set(self, key: str, value: Any, ttl: int = 300) -> None: ...
-
-            @abstractmethod
-            def delete(self, key: str) -> None: ...
+            __all__ = [
+                "Abstract{pascal_adapter}",
+                "{pascal_impl}{pascal_adapter}",
+                "Memory{pascal_adapter}",
+            ]
+            """
+        ),
+        adapter_dir / "abstract.py": textwrap.dedent(
+            f"""\
+            from abc import ABC, abstractmethod
+            from typing import Any
 
 
-        class {pascal_impl}{pascal_adapter}(Abstract{pascal_adapter}):
-            \"\"\"生产实现 — 连接真实的 {impl_name} 服务\"\"\"
+            class Abstract{pascal_adapter}(ABC):
+                @abstractmethod
+                def get(self, key: str) -> Any | None: ...
 
-            def __init__(self, client: Any) -> None:
-                self._client = client
+                @abstractmethod
+                def set(self, key: str, value: Any, ttl: int = 300) -> None: ...
 
-            def get(self, key: str) -> Any | None:
-                raise NotImplementedError("请实现 {impl_name} get 方法")
+                @abstractmethod
+                def delete(self, key: str) -> None: ...
+            """
+        ),
+        adapter_dir / f"{impl_name}.py": textwrap.dedent(
+            f"""\
+            from typing import Any
 
-            def set(self, key: str, value: Any, ttl: int = 300) -> None:
-                raise NotImplementedError("请实现 {impl_name} set 方法")
-
-            def delete(self, key: str) -> None:
-                raise NotImplementedError("请实现 {impl_name} delete 方法")
+            from .abstract import Abstract{pascal_adapter}
 
 
-        class Memory{pascal_adapter}(Abstract{pascal_adapter}):
-            \"\"\"内存替身 — 用于单元测试\"\"\"
+            class {pascal_impl}{pascal_adapter}(Abstract{pascal_adapter}):
+                def __init__(self, client: Any) -> None:
+                    self._client = client
 
-            def __init__(self) -> None:
-                self._store: dict[str, Any] = {{}}
+                def get(self, key: str) -> Any | None:
+                    raise NotImplementedError("请实现 {impl_name} get 方法")
 
-            def get(self, key: str) -> Any | None:
-                return self._store.get(key)
+                def set(self, key: str, value: Any, ttl: int = 300) -> None:
+                    raise NotImplementedError("请实现 {impl_name} set 方法")
 
-            def set(self, key: str, value: Any, ttl: int = 300) -> None:
-                self._store[key] = value
+                def delete(self, key: str) -> None:
+                    raise NotImplementedError("请实现 {impl_name} delete 方法")
+            """
+        ),
+        adapter_dir / "memory.py": textwrap.dedent(
+            f"""\
+            from typing import Any
 
-            def delete(self, key: str) -> None:
-                self._store.pop(key, None)
-    """)
+            from .abstract import Abstract{pascal_adapter}
 
-    adapter_file.write_text(content, encoding="utf-8")
-    print(f"  ✅ 创建: app/infra/{adapter_name}.py")
 
-    # 测试桩
+            class Memory{pascal_adapter}(Abstract{pascal_adapter}):
+                def __init__(self) -> None:
+                    self._store: dict[str, Any] = {{}}
+
+                def get(self, key: str) -> Any | None:
+                    return self._store.get(key)
+
+                def set(self, key: str, value: Any, ttl: int = 300) -> None:
+                    self._store[key] = value
+
+                def delete(self, key: str) -> None:
+                    self._store.pop(key, None)
+            """
+        ),
+    }
+
+    for path, content in files.items():
+        _write(path, content)
+        print(f"  ✅ 创建: {path.relative_to(project_root)}")
+
+    test_dir.mkdir(parents=True, exist_ok=True)
     test_file = test_dir / f"test_{adapter_name}.py"
     if not test_file.exists():
-        test_file.write_text(
-            textwrap.dedent(f"""\
+        _write(
+            test_file,
+            textwrap.dedent(
+                f"""\
                 \"\"\"单元测试: Memory{pascal_adapter}\"\"\"
+
                 from app.infra.{adapter_name} import Memory{pascal_adapter}
 
 
@@ -110,8 +131,8 @@ def scaffold_adapter(project_root: Path, adapter_name: str, impl_name: str) -> N
                     adapter.set("key1", "value")
                     adapter.delete("key1")
                     assert adapter.get("key1") is None
-            """),
-            encoding="utf-8",
+                """
+            ),
         )
         print(f"  ✅ 创建: tests/unit/test_{adapter_name}.py")
 

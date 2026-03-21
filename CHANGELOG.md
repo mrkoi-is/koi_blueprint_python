@@ -6,6 +6,9 @@
 ## [Unreleased]
 
 ### Added
+- `AGENTS.md` — 跨工具 Agent 说明（Antigravity / Codex / Cursor 等与 `.agent/skills/` 对齐）
+- `.cursor/rules/koi-agent-skills.mdc` — Cursor 侧 Skill 桥接规则
+- `docs/agent-skill-rule-discovery.md` — 各平台 Skill / Rule 发现机制说明
 - `app/core/repository.py` — Generic CRUD Repository 基类 (AbstractRepository + SaRepository + MemoryRepository)
 - `app/core/metrics.py` — Prometheus 指标收集模板
 - `.pre-commit-config.yaml` — Ruff pre-commit hooks
@@ -28,6 +31,7 @@
 - Architecture doc §11 API 版本管理
 
 ### Changed
+- **Python 最低版本**：仅支持 **3.13+**（`requires-python`、架构文档 §2.7、README）；移除对 3.12 的兼容表述
 - `app/core/logging.py` — 添加标准库 logging 桥接，uvicorn/sqlalchemy 日志格式统一
 - `app/main.py` — `setup_logging()` 移至 `create_app()` 而非 lifespan
 - `Dockerfile` — Python 3.13-slim + uv.lock + --frozen 确定性构建

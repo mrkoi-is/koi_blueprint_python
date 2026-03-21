@@ -3,7 +3,7 @@ name = "koi-service"
 version = "0.1.0"
 description = "Koi blueprint generated Python service"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
   "fastapi>=0.115,<1.0",
   "uvicorn[standard]>=0.34,<1.0",
@@ -39,7 +39,12 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF", "S"]
+ignore = ["B008", "RUF001", "RUF002", "RUF003", "UP046"]
 # S = flake8-bandit rules via ruff (security linting)
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "S603"]
+"skeleton/tests/**/*.py" = ["S101", "S603"]
 
 [tool.pyright]
 pythonVersion = "3.13"

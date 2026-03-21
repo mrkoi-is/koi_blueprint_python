@@ -1,0 +1,7 @@
+interface:
+  display_name: "Testing Scaffold"
+  short_description: "Add Koi-style unit and integration tests"
+  default_prompt: "Use $testing-scaffold to add or improve tests in this Python service."
+
+policy:
+  allow_implicit_invocation: true

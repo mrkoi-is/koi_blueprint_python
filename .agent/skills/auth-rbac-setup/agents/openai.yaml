@@ -1,0 +1,7 @@
+interface:
+  display_name: "Auth RBAC Setup"
+  short_description: "Add JWT auth and role checks"
+  default_prompt: "Use $auth-rbac-setup to wire JWT auth and RBAC in this Python service."
+
+policy:
+  allow_implicit_invocation: true

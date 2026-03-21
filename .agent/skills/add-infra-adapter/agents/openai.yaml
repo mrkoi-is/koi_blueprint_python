@@ -2,3 +2,6 @@ interface:
   display_name: "Add Infra Adapter"
   short_description: "Scaffold an infrastructure adapter"
   default_prompt: "Use $add-infra-adapter to add a new infrastructure adapter."
+
+policy:
+  allow_implicit_invocation: true

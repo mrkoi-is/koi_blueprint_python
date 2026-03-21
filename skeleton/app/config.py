@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     app_name: str = "Koi Service"
     debug: bool = False
     database_url: str = "postgresql+psycopg://postgres:postgres@localhost:5432/koi_service"
-    jwt_secret: SecretStr = SecretStr("change-me")
+    jwt_secret: SecretStr = SecretStr("change-me-to-at-least-32-characters")
     redis_url: str = "redis://localhost:6379/0"
     cors_origins: list[str] = ["http://localhost:3000"]
 

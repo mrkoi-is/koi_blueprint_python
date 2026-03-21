@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from testcontainers.postgres import PostgresContainer
 
+from app.core.db import Base
 from app.main import app as fastapi_app
 
 
@@ -19,22 +20,16 @@ def client(app):
 
 @pytest.fixture(scope="session")
 def postgres_engine():
-    """Session 级：整个测试周期只启动一次 PG 容器"""
+    """Session 级：整个测试周期只启动一次 PG 容器。"""
     with PostgresContainer("postgres:16-alpine") as container:
         engine = create_engine(container.get_connection_url())
-        # Base.metadata.create_all(engine)  # 项目有 ORM 模型后取消注释
+        Base.metadata.create_all(engine)
         yield engine
-    # 测试结束，容器自动销毁
 
 
 @pytest.fixture
 def db_session(postgres_engine):
-    """Function 级：每个测试用例获得独立的事务，测试结束自动回滚
-
-    SQLAlchemy 2.0 写法：
-      - Session(connection, join_transaction_mode="create_savepoint")
-      - join_transaction_mode 确保 session 加入外部事务而非自动提交
-    """
+    """Function 级：每个测试用例获得独立事务，结束后自动回滚。"""
     connection = postgres_engine.connect()
     transaction = connection.begin()
     session = Session(connection, join_transaction_mode="create_savepoint")

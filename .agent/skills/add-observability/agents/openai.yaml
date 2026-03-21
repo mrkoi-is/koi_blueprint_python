@@ -1,0 +1,7 @@
+interface:
+  display_name: "Add Observability"
+  short_description: "Add metrics and tracing to the service"
+  default_prompt: "Use $add-observability to add metrics and tracing to this Python service."
+
+policy:
+  allow_implicit_invocation: true

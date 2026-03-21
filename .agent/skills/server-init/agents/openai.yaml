@@ -2,3 +2,6 @@ interface:
   display_name: "Server Init"
   short_description: "Bootstrap a FastAPI server project"
   default_prompt: "Use $server-init to scaffold a new Python service project."
+
+policy:
+  allow_implicit_invocation: true

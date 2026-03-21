@@ -1,0 +1,7 @@
+interface:
+  display_name: "API Versioning"
+  short_description: "Add or review versioned API routes"
+  default_prompt: "Use $api-versioning to add or review API versioning in this Python service."
+
+policy:
+  allow_implicit_invocation: true

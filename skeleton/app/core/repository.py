@@ -84,10 +84,11 @@ class MemoryRepository(AbstractRepository[T]):
         return self._store.get(id)
 
     def add(self, entity: T) -> None:
-        if not hasattr(entity, "id") or getattr(entity, "id") is None:
-            object.__setattr__(entity, "id", self._next_id)
+        entity_obj = entity
+        if not hasattr(entity_obj, "id") or entity_obj.id is None:  # type: ignore[attr-defined]
+            object.__setattr__(entity_obj, "id", self._next_id)
             self._next_id += 1
-        self._store[getattr(entity, "id")] = entity
+        self._store[entity_obj.id] = entity  # type: ignore[attr-defined]
 
     def list_all(self, offset: int = 0, limit: int = 20, **filters: Any) -> list[T]:
         items = list(self._store.values())

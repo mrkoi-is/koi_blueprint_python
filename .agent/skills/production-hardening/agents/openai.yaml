@@ -1,0 +1,7 @@
+interface:
+  display_name: "Production Hardening"
+  short_description: "Harden a Python service for production"
+  default_prompt: "Use $production-hardening to improve production readiness for this Python service."
+
+policy:
+  allow_implicit_invocation: true

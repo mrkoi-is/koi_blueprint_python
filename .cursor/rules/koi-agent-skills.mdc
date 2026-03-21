@@ -1,0 +1,32 @@
+---
+description: Koi 蓝图 — 匹配任务时读取 .agent/skills 下对应 SKILL.md 并执行工作流（与 AGENTS.md 一致）
+globs:
+alwaysApply: true
+---
+
+# Koi blueprint — Agent Skills
+
+本仓库的 **Skill 唯一来源** 为 `.agent/skills/<skill-id>/SKILL.md`（含 `references/`、`scripts/`、`assets/`）。
+
+当用户请求与下列场景相关时，**先读取对应目录下的 `SKILL.md`**，再按其中步骤操作，不要仅凭记忆实现：
+
+| 场景 | 目录 |
+|------|------|
+| 初始化新项目 / skeleton / bootstrap | `server-init` |
+| 新领域模块 | `add-domain-module` |
+| 基础设施适配器 | `add-infra-adapter` |
+| 数据库迁移 | `alembic-migration` |
+| CI | `ci-setup` |
+| Docker / 部署 | `docker-deploy` |
+| 后台任务 | `add-background-task` |
+| WebSocket | `add-websocket` |
+| 可观测性 | `add-observability` |
+| 架构评审 | `architecture-review` |
+| 测试脚手架 | `testing-scaffold` |
+| 鉴权 RBAC | `auth-rbac-setup` |
+| 生产加固 | `production-hardening` |
+| 异步升级 | `async-upgrade` |
+| API 版本 | `api-versioning` |
+| 限流 | `rate-limit-setup` |
+
+全局约束见仓库根目录 `AGENTS.md` 与 `docs/architecture.md`（Python 3.13+）。

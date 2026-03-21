@@ -11,3 +11,5 @@ class DeviceResponse(BaseModel):
     sn: str
     name: str
     status: str
+
+    model_config = {"from_attributes": True}

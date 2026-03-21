@@ -1,0 +1,7 @@
+interface:
+  display_name: "Add Background Task"
+  short_description: "Add queues, workers, and task patterns"
+  default_prompt: "Use $add-background-task to add background job processing to this Python service."
+
+policy:
+  allow_implicit_invocation: true

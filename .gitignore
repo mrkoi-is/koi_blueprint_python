@@ -34,3 +34,7 @@ dist/
 # Alembic local artifacts
 *.db
 instance/
+
+# Local temp
+.tmp/
+tmp/

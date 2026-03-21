@@ -2,3 +2,6 @@ interface:
   display_name: "Add Domain Module"
   short_description: "Scaffold a domain module in Koi style"
   default_prompt: "Use $add-domain-module to scaffold a new domain module."
+
+policy:
+  allow_implicit_invocation: true

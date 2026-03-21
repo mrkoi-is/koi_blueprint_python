@@ -1,60 +1,37 @@
 ---
 name: add-websocket
-description: Add WebSocket support to a Koi-standard Python service. Use when implementing real-time communication such as chat, live notifications, device status streaming, or collaborative editing.
+description: Add WebSocket support to a Koi-standard Python service. Use when implementing chat, live notifications, device status streaming, collaborative sessions, connection managers, authentication for websocket endpoints, and real-time integration tests.
 ---
 
 > 适配 `docs/architecture.md` v4.0
 
+Use this skill when the user asks to:
+- 为服务增加实时通信、推送、状态订阅或双向会话能力
+- 实现 `ConnectionManager`、房间广播、在线连接管理
+- 给 WebSocket 路由补鉴权、错误处理与测试
+- 审核 sync / async 边界、消息格式与实时链路设计是否合理
+
 ## Workflow
 
-1. 在领域模块创建 `ws_router.py`:
-   ```python
-   from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-   import structlog
+1. Read `docs/architecture.md` 中与 FastAPI、异步边界、WebSocket 场景相关的章节。
+2. Inspect the target project's:
+   - `app/main.py`
+   - `app/core/auth.py`
+   - `app/core/dependencies.py`
+   - target domain routers / services
+   - tests for real-time flows
+3. Run `scripts/inspect_websocket_surface.py <target-root>` to inspect current router, auth, and real-time testing signals.
+4. Use `references/websocket-patterns.md` to decide route shape, connection manager scope, and broadcast strategy.
+5. Use `references/websocket-auth-and-testing.md` to handle token passing, permission checks, disconnect behavior, and test layout.
+6. Keep WebSocket handlers `async def`, and keep business rules inside services or dedicated managers instead of embedding everything in the router.
+7. Decide whether the connection scope is per-process, per-room, or needs an external pub/sub bridge.
+8. Add or update tests for connect, message round-trip, auth failure, and disconnect cleanup.
 
-   router = APIRouter()
-   logger = structlog.get_logger()
+## WebSocket Principles
 
-   class ConnectionManager:
-       def __init__(self):
-           self.active: list[WebSocket] = []
+- WebSocket 适合实时链路，不要拿它替代普通 CRUD HTTP 接口。
+- 单进程内存连接管理器只适用于单实例场景；多实例广播需要 Redis / MQ / pub-sub。
+- 鉴权必须与 HTTP 口径一致，401 / 403 语义要清晰。
+- 消息 schema、心跳、断线清理与背压策略要在设计阶段说明，而不是上线后补救。
 
-       async def connect(self, ws: WebSocket):
-           await ws.accept()
-           self.active.append(ws)
-
-       def disconnect(self, ws: WebSocket):
-           self.active.remove(ws)
-
-       async def broadcast(self, message: str):
-           for ws in self.active:
-               await ws.send_text(message)
-
-   manager = ConnectionManager()
-
-   @router.websocket("/ws")
-   async def websocket_endpoint(ws: WebSocket):
-       await manager.connect(ws)
-       try:
-           while True:
-               data = await ws.receive_text()
-               await manager.broadcast(data)
-       except WebSocketDisconnect:
-           manager.disconnect(ws)
-   ```
-
-2. 在 `app/main.py` 注册: `app.include_router(ws_router)`
-3. 注意: WebSocket 路由**必须**使用 `async def`
-4. 认证: 通过查询参数传递 token `ws://host/ws?token=xxx`
-
-## 测试
-
-```python
-from fastapi.testclient import TestClient
-
-def test_websocket(client):
-    with client.websocket_connect("/ws") as ws:
-        ws.send_text("hello")
-        data = ws.receive_text()
-        assert data == "hello"
-```
+Load `references/websocket-patterns.md` and `references/websocket-auth-and-testing.md` as needed.

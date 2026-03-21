@@ -1,18 +1,30 @@
 ---
 name: server-init
-description: Scaffold a new Koi-standard Python service from the koi_blueprint_python repository. Use when creating a new Python/FastAPI backend, bootstrapping a fresh repository, copying the standard skeleton, installing baseline dependencies, and verifying /health and initial tests.
+description: Scaffold a new Koi-standard Python service from the koi_blueprint_python repository. Use when creating a new FastAPI backend, bootstrapping a repository from `skeleton/`, syncing baseline dependencies, and verifying the initial health endpoint, lint, type checks, and tests.
 ---
 
 > 适配 `docs/architecture.md` v4.0
 
-Use `scripts/apply_skeleton.py` to copy `skeleton/` into the target project root.
+Use this skill when the user asks to:
+- 初始化一个新的 Python / FastAPI 服务项目
+- 从 `skeleton/` 拷贝标准骨架并完成首轮接线
+- 对齐基础依赖、目录结构、`/health` 与测试基线
+- 审核一个新仓库是否按 Koi 标准完成 bootstrap
 
-Workflow:
-1. Read `docs/architecture.md`, especially Python version policy and bootstrap guidance.
-2. Run `uv init --python <preferred-version> <project-name>`.
-3. Run `scripts/apply_skeleton.py <target-project-root>`.
-4. Sync dependencies with `uv sync --all-groups` or equivalent `uv add` commands.
-5. Run `uv run ruff check .`, `uv run pyright`, and `uv run pytest`.
-6. Confirm `tests/test_health.py` passes.
+## Workflow
 
-Load `references/bootstrap-checklist.md` when you need the full checklist.
+1. Read `README.md` and `docs/architecture.md`, especially Python version policy and bootstrap guidance.
+2. Run `scripts/apply_skeleton.py <target-project-root>` after preparing the target repository.
+3. Confirm the generated project includes `pyproject.toml`, `app/`, `tests/`, Docker assets, and CI baseline files.
+4. Sync dependencies with `uv sync --all-groups` or the equivalent `uv add` flow when the target project needs incremental adoption.
+5. Validate the baseline with `uv run ruff check .`, `uv run pyright`, and `uv run pytest`.
+6. Confirm `tests/test_health.py` and the default application startup path both work.
+
+## Bootstrap Principles
+
+- 优先复用 `skeleton/` 与根级脚本，不要手写一套近似但漂移的起步模板。
+- 初始化阶段先保证“可运行、可测试、可检查”，再加业务代码。
+- 新项目必须对齐 Python 版本、工具链、目录结构与配置入口。
+- 生成后若需定制，保持在 Koi 基线之上增量调整，而不是回退到自由发挥。
+
+Load `references/bootstrap-checklist.md` when you need the full bootstrap checklist.

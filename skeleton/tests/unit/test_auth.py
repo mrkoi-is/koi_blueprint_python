@@ -1,5 +1,6 @@
 """单元测试: 认证与鉴权依赖 (auth.py)"""
-from unittest.mock import patch
+
+import time
 
 import jwt
 import pytest
@@ -11,7 +12,6 @@ from app.core.exceptions import AuthenticationError, ForbiddenError
 
 
 def _make_token(payload: dict) -> str:
-    """辅助: 生成 JWT token"""
     return jwt.encode(payload, settings.jwt_secret.get_secret_value(), algorithm="HS256")
 
 
@@ -20,6 +20,10 @@ def _make_credentials(token: str) -> HTTPAuthorizationCredentials:
 
 
 class TestGetCurrentUser:
+    def test_missing_credentials_raises(self) -> None:
+        with pytest.raises(AuthenticationError):
+            get_current_user(None)
+
     def test_valid_token(self) -> None:
         token = _make_token({"sub": "123", "role": "admin"})
         creds = _make_credentials(token)
@@ -33,8 +37,6 @@ class TestGetCurrentUser:
             get_current_user(creds)
 
     def test_expired_token_raises(self) -> None:
-        import time
-
         token = _make_token({"sub": "123", "exp": int(time.time()) - 3600})
         creds = _make_credentials(token)
         with pytest.raises(AuthenticationError):

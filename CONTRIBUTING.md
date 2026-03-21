@@ -14,9 +14,10 @@ cd koi_blueprint_python
 ### 2. 修改优先级
 
 1. 先维护 `docs/architecture.md`
-2. 再维护 `skeleton/`，确保 `pytest` 可通过
-3. 再补充 `examples/`
-4. 最后完善 `.agent/skills/` 中的脚本、模板与 references
+2. 若变更影响 Agent 行为或 Skill 索引，同步更新根目录 `AGENTS.md`、`docs/agent-skill-rule-discovery.md`（与 `.cursor/rules/` 保持叙述一致）
+3. 再维护 `skeleton/`，确保 `pytest` 可通过
+4. 再补充 `examples/`
+5. 最后完善 `.agent/skills/` 中的脚本、模板与 references
 
 ### 3. 代码质量
 
