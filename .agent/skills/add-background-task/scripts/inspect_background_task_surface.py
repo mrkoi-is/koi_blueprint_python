@@ -14,6 +14,14 @@ def any_file(root: Path, pattern: str) -> bool:
     return any(root.glob(pattern))
 
 
+def any_contains(root: Path, needle: str) -> bool:
+    return any(needle in path.read_text(encoding="utf-8") for path in root.rglob("*.py"))
+
+
+def compose_mentions(paths: list[Path], needle: str) -> bool:
+    return any(path.is_file() and needle in path.read_text(encoding="utf-8") for path in paths)
+
+
 def main() -> int:
     if len(sys.argv) != 2:
         print("Usage: inspect_background_task_surface.py <target-root>")
@@ -32,14 +40,15 @@ def main() -> int:
         "root": str(root),
         "has_pyproject": pyproject.is_file(),
         "uses_backgroundtasks": contains(main_py, "BackgroundTasks")
-        or any("BackgroundTasks" in path.read_text(encoding="utf-8") for path in (root / "app").rglob("*.py")),
+        or any_contains(root / "app", "BackgroundTasks"),
         "has_celery_dependency": contains(pyproject, "celery"),
         "has_arq_dependency": contains(pyproject, "arq"),
-        "has_worker_module": any_file(root / "app", "worker.py") or any_file(root / "app", "**/worker.py"),
+        "has_worker_module": any_file(root / "app", "worker.py")
+        or any_file(root / "app", "**/worker.py"),
         "has_task_module": any_file(root / "app", "**/tasks.py"),
         "has_compose_file": any(path.is_file() for path in compose_candidates),
-        "compose_mentions_worker": any(path.is_file() and "worker" in path.read_text(encoding="utf-8") for path in compose_candidates),
-        "compose_mentions_redis": any(path.is_file() and "redis" in path.read_text(encoding="utf-8") for path in compose_candidates),
+        "compose_mentions_worker": compose_mentions(compose_candidates, "worker"),
+        "compose_mentions_redis": compose_mentions(compose_candidates, "redis"),
     }
     print(json.dumps(result, indent=2, ensure_ascii=False))
     return 0

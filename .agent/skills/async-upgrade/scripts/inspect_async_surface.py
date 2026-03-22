@@ -30,7 +30,10 @@ def main() -> int:
         print(f"[{'OK' if path.exists() else 'NO'}] {rel}")
     print("[signals]")
     for pattern in PATTERNS:
-        found = any(pattern in path.read_text(encoding='utf-8', errors='ignore') for path in root.rglob('*.py'))
+        found = any(
+            pattern in path.read_text(encoding="utf-8", errors="ignore")
+            for path in root.rglob("*.py")
+        )
         print(f"- {pattern}: {'YES' if found else 'NO'}")
     return 0
 

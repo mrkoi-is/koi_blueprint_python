@@ -23,16 +23,25 @@ def main() -> int:
     app_root = root / "app"
     tests_root = root / "tests"
     auth_py = app_root / "core" / "auth.py"
+    has_app = app_root.is_dir()
+    has_tests = tests_root.is_dir()
 
     result = {
         "root": str(root),
-        "has_websocket_route": any_contains(app_root, "@router.websocket") if app_root.is_dir() else False,
-        "uses_websocket_class": any_contains(app_root, "WebSocket") if app_root.is_dir() else False,
-        "has_connection_manager": any_contains(app_root, "ConnectionManager") if app_root.is_dir() else False,
-        "mentions_websocket_disconnect": any_contains(app_root, "WebSocketDisconnect") if app_root.is_dir() else False,
+        "has_websocket_route": any_contains(app_root, "@router.websocket") if has_app else False,
+        "uses_websocket_class": any_contains(app_root, "WebSocket") if has_app else False,
+        "has_connection_manager": any_contains(app_root, "ConnectionManager") if has_app else False,
+        "mentions_websocket_disconnect": any_contains(app_root, "WebSocketDisconnect")
+        if has_app
+        else False,
         "has_auth_module": auth_py.is_file(),
         "auth_mentions_token": contains(auth_py, "token") or contains(auth_py, "Bearer"),
-        "has_websocket_tests": any("websocket_connect" in path.read_text(encoding="utf-8") for path in tests_root.rglob("*.py")) if tests_root.is_dir() else False,
+        "has_websocket_tests": any(
+            "websocket_connect" in path.read_text(encoding="utf-8")
+            for path in tests_root.rglob("*.py")
+        )
+        if has_tests
+        else False,
     }
     print(json.dumps(result, indent=2, ensure_ascii=False))
     return 0
