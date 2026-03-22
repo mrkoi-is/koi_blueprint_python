@@ -10,6 +10,7 @@
 依赖:
     uv add prometheus-fastapi-instrumentator
 """
+
 from fastapi import FastAPI
 
 

@@ -3,6 +3,7 @@
 减少领域模块中 80%+ 的样板代码。
 领域模块只需继承并添加业务特定的查询方法。
 """
+
 from abc import ABC, abstractmethod
 from typing import Any, Generic, TypeVar
 
