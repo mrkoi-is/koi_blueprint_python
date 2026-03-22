@@ -1,8 +1,7 @@
 from pydantic import SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
-_DEFAULT_JWT_SECRET = "change-me-to-at-least-32-characters"
+_DEFAULT_JWT_SECRET = "change-me-to-at-least-32-characters"  # noqa: S105
 
 
 class Settings(BaseSettings):

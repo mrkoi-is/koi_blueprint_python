@@ -5,14 +5,14 @@ from collections.abc import Generator
 # Default to debug mode in tests to prevent JWT secret validator from blocking
 os.environ.setdefault("APP_DEBUG", "true")
 
-import pytest  # noqa: E402
-from fastapi.testclient import TestClient  # noqa: E402
-from sqlalchemy import Engine, create_engine  # noqa: E402
-from sqlalchemy.orm import Session  # noqa: E402
-from testcontainers.postgres import PostgresContainer  # type: ignore[import-untyped]  # noqa: E402
+import pytest
+from fastapi.testclient import TestClient
+from sqlalchemy import Engine, create_engine
+from sqlalchemy.orm import Session
+from testcontainers.postgres import PostgresContainer  # type: ignore[import-untyped]
 
-from app.core.db import Base  # noqa: E402
-from app.main import app as fastapi_app  # noqa: E402
+from app.core.db import Base
+from app.main import app as fastapi_app
 
 
 @pytest.fixture
