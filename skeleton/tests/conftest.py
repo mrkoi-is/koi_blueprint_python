@@ -18,7 +18,7 @@ def client() -> TestClient:
 @pytest.fixture(scope="session")
 def postgres_engine() -> Generator[Engine]:
     """Session 级：整个测试周期只启动一次 PG 容器。"""
-    with PostgresContainer("postgres:16-alpine") as container:
+    with PostgresContainer("postgres:16-alpine", driver="psycopg") as container:
         engine = create_engine(container.get_connection_url())
         Base.metadata.create_all(engine)
         yield engine
