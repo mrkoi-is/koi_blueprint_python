@@ -38,6 +38,7 @@ docker-compose.yml
 
 # Docs / Meta
 *.md
+!README.md
 LICENSE
 Makefile
 .pre-commit-config.yaml
