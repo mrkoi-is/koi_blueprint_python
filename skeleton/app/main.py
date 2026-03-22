@@ -13,6 +13,9 @@ from app.core.exception_handlers import app_error_handler, validation_error_hand
 from app.core.exceptions import AppError
 from app.core.logging import setup_logging
 
+# 取消下行注释以启用 Prometheus 指标 / Uncomment to enable Prometheus metrics:
+# from app.core.metrics import setup_metrics
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -49,6 +52,9 @@ def create_app() -> FastAPI:
             path=str(request.url.path),
         )
         return await call_next(request)
+
+    # 启用 Prometheus 指标 / Enable Prometheus metrics
+    # setup_metrics(app)
 
     api_prefix = "/api/v1"
     # 在此注册领域路由 / register domain routers here

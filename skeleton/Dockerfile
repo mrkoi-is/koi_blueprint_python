@@ -25,10 +25,14 @@ RUN if [ -f uv.lock ]; then \
 # ---- Stage 2: Runtime ----
 FROM python:3.13-slim AS runtime
 
+RUN useradd --system --no-create-home appuser
+
 WORKDIR /app
 COPY --from=builder /app /app
 
 ENV PATH="/app/.venv/bin:$PATH"
+
+USER appuser
 
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=3s CMD ["python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]

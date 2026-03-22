@@ -2,6 +2,7 @@ name: Blueprint CI
 
 on:
   push:
+    branches: [main]
   pull_request:
 
 defaults:
@@ -32,6 +33,12 @@ jobs:
 
       - name: Pytest with coverage
         run: uv run pytest --cov=app --cov-report=xml --tb=short
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: skeleton/coverage.xml
+          fail_ci_if_error: false
 
       - name: Security scan (Bandit)
         run: uv run bandit -r app/ -q

@@ -26,6 +26,20 @@ class AbstractUnitOfWork(ABC):
 
 
 class SqlAlchemyUnitOfWork(AbstractUnitOfWork):
+    """SQLAlchemy 事务工作单元。
+
+    用法 — 子类挂载领域仓储 / Subclass to mount domain repositories::
+
+        class DeviceUnitOfWork(SqlAlchemyUnitOfWork):
+            def __enter__(self) -> "DeviceUnitOfWork":
+                uow = super().__enter__()
+                self.devices = SaDeviceRepository(self._session)
+                return uow
+
+        with DeviceUnitOfWork(session_factory) as uow:
+            uow.devices.add(device)
+            uow.commit()
+    """
     def __init__(self, session_factory: Callable[[], Session]) -> None:
         self._session_factory = session_factory
         self._session: Session | None = None
