@@ -9,13 +9,16 @@
 
 ## 2. 骨架落地
 
-- 使用 `scripts/apply_skeleton.py <target-project-root>` 复制 `skeleton/`
+- 使用 `scripts/apply_skeleton.py <target-project-root>` 复制 `skeleton/` 和 AI 工具链资产
+- 脚本默认同时复制骨架代码和 AI 资产；如不需要 AI 资产可传 `--no-ai-assets`
 - 保留 `pyproject.toml`、`app/`、`tests/`、`Dockerfile`、`.env.example`、CI 基线
 - 如果目标仓库已有同名文件，优先做差异合并，不要盲目覆盖
 
 ## 3. 启动后核对
 
 至少确认以下文件存在且语义正确：
+
+### 骨架代码
 - `pyproject.toml`
 - `app/main.py`
 - `app/config.py`
@@ -24,6 +27,15 @@
 - `.env.example`
 - `Dockerfile`
 - `.github/workflows/`
+
+### AI 工具链资产
+- `AGENTS.md`
+- `.agent/skills/index.yaml`
+- `.agent/skills/*/SKILL.md`
+- `.cursor/rules/koi-agent-skills.mdc`
+- `docs/ai-quickstart.md`
+- `docs/architecture.md`
+- `docs/how-other-ai-use-this-project.md`
 
 ## 4. 基线验证
 

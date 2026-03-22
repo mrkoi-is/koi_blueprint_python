@@ -81,3 +81,21 @@
 - 不要优先从 `examples/` 复制实现，除非任务明确要求参考示例。
 - 不要忽略 `AGENTS.md` 和 `.agent/skills/index.yaml` 自己猜目录语义。
 - 不要在仓库缓存目录中搜索证据；这些目录已经被忽略。
+
+## 8. 新项目中的 AI 资产
+
+`scripts/apply_skeleton.py` 默认会同时复制骨架代码和 AI 工具链资产到新项目：
+
+| 资产 | 说明 |
+|------|------|
+| `AGENTS.md` | Agent 入口文件，路由 Skill |
+| `.agent/skills/` | 全部 Skill（含 `index.yaml`） |
+| `.cursor/rules/` | Cursor 规则 |
+| `docs/ai-quickstart.md` | AI 最短入口 |
+| `docs/architecture.md` | 架构权威说明 |
+| `docs/how-other-ai-use-this-project.md` | 跨工具接入说明 |
+| `docs/agent-skill-rule-discovery.md` | Skill 发现机制 |
+
+如果不需要 AI 资产，使用 `--no-ai-assets` 跳过。
+
+> 这确保了任何 AI 工具打开新项目后，都能通过 `AGENTS.md` → `index.yaml` → `SKILL.md` 的标准路径路由到正确的 Skill。

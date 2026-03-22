@@ -5,6 +5,8 @@
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-03-22
+
 ### Added
 - `AGENTS.md` — 跨工具 Agent 说明（Antigravity / Codex / Cursor 等与 `.agent/skills/` 对齐）
 - `.cursor/rules/koi-agent-skills.mdc` — Cursor 侧 Skill 桥接规则
@@ -29,9 +31,14 @@
 - Architecture doc §9 可观测性 (Prometheus, OpenTelemetry)
 - Architecture doc §10 速率限制 (slowapi)
 - Architecture doc §11 API 版本管理
+- `docs/ai-quickstart.md` §8 — 新项目 AI 资产清单说明
 
 ### Changed
 - **Python 最低版本**：仅支持 **3.13+**（`requires-python`、架构文档 §2.7、README）；移除对 3.12 的兼容表述
+- `scripts/apply_skeleton.py` — 默认同时复制骨架代码和 AI 工具链资产（`.agent/`, `.cursor/`, `AGENTS.md`, 关键文档）；新增 `--no-ai-assets` 可选退出
+- `.agent/skills/server-init/SKILL.md` — Workflow 增加 AI 资产确认步骤（步骤 4）和 bootstrap 原则
+- `.agent/skills/server-init/references/bootstrap-checklist.md` — 启动后核对新增 AI 工具链资产检查清单
+- `docs/how-other-ai-use-this-project.md` — 新项目初始化提示词补充 AI 资产确认
 - `app/core/logging.py` — 添加标准库 logging 桥接，uvicorn/sqlalchemy 日志格式统一
 - `app/main.py` — `setup_logging()` 移至 `create_app()` 而非 lifespan
 - `Dockerfile` — Python 3.13-slim + uv.lock + --frozen 确定性构建

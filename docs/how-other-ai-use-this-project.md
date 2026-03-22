@@ -126,6 +126,8 @@ Read references only when needed. Prefer skeleton/ over examples/ when generatin
 ```text
 请先读 docs/ai-quickstart.md、AGENTS.md、.agent/skills/index.yaml，
 然后使用 server-init 对当前目录初始化一个符合 Koi 标准的新项目。
+脚本 scripts/apply_skeleton.py 会同时复制骨架代码和 AI 工具链资产。
+初始化完成后，确认新项目中包含 AGENTS.md、.agent/skills/、.cursor/rules/、docs/architecture.md。
 ```
 
 ### 新增业务模块
