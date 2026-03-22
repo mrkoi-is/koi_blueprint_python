@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from collections.abc import Callable
+from types import TracebackType
 
 from sqlalchemy.orm import Session
 
@@ -8,7 +9,12 @@ class AbstractUnitOfWork(ABC):
     def __enter__(self) -> "AbstractUnitOfWork":
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         if exc_type:
             self.rollback()
 
@@ -28,7 +34,12 @@ class SqlAlchemyUnitOfWork(AbstractUnitOfWork):
         self._session = self._session_factory()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         super().__exit__(exc_type, exc_val, exc_tb)
         if self._session is not None:
             self._session.close()

@@ -5,6 +5,7 @@ import subprocess
 
 import pytest
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 
 def _docker_available() -> bool:
@@ -26,11 +27,11 @@ pytestmark = [
 ]
 
 
-def test_db_session_fixture_works(db_session) -> None:
+def test_db_session_fixture_works(db_session: Session) -> None:
     result = db_session.execute(text("SELECT 1")).scalar_one()
     assert result == 1
 
 
-def test_db_connection_exposes_database_name(db_session) -> None:
+def test_db_connection_exposes_database_name(db_session: Session) -> None:
     result = db_session.execute(text("SELECT current_database()")).scalar_one()
     assert isinstance(result, str)

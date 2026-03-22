@@ -1,3 +1,6 @@
+from collections.abc import Callable
+from typing import Any
+
 import jwt
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -11,11 +14,11 @@ optional_bearer = HTTPBearer(auto_error=False)
 
 def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
-) -> dict:
+) -> dict[str, Any]:
     if credentials is None:
         raise AuthenticationError()
     try:
-        payload = jwt.decode(
+        payload: dict[str, Any] = jwt.decode(  # type: ignore[reportUnknownMemberType]
             credentials.credentials,
             settings.jwt_secret.get_secret_value(),
             algorithms=["HS256"],
@@ -27,21 +30,22 @@ def get_current_user(
 
 def get_optional_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(optional_bearer),
-) -> dict | None:
+) -> dict[str, Any] | None:
     if credentials is None:
         return None
     try:
-        return jwt.decode(
+        payload: dict[str, Any] = jwt.decode(  # type: ignore[reportUnknownMemberType]
             credentials.credentials,
             settings.jwt_secret.get_secret_value(),
             algorithms=["HS256"],
         )
     except jwt.InvalidTokenError:
         return None
+    return payload
 
 
-def require_role(*roles: str):
-    def checker(user: dict = Depends(get_current_user)) -> dict:
+def require_role(*roles: str) -> Callable[..., dict[str, Any]]:
+    def checker(user: dict[str, Any] = Depends(get_current_user)) -> dict[str, Any]:
         if user.get("role") not in roles:
             raise ForbiddenError("Insufficient permissions")
         return user

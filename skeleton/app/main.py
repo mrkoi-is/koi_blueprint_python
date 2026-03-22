@@ -1,8 +1,9 @@
 import uuid
+from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 
 import structlog
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -14,7 +15,7 @@ from app.core.logging import setup_logging
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     init_database(app)
     yield
     shutdown_database(app)
@@ -33,11 +34,14 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    app.add_exception_handler(AppError, app_error_handler)
-    app.add_exception_handler(RequestValidationError, validation_error_handler)
+    app.add_exception_handler(AppError, app_error_handler)  # type: ignore[arg-type]
+    app.add_exception_handler(RequestValidationError, validation_error_handler)  # type: ignore[arg-type]
 
     @app.middleware("http")
-    async def logging_middleware(request, call_next):
+    async def logging_middleware(  # type: ignore[reportUnusedFunction]  # FastAPI 装饰器注册
+        request: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
+    ) -> Response:
         structlog.contextvars.clear_contextvars()
         structlog.contextvars.bind_contextvars(
             trace_id=str(uuid.uuid4()),
@@ -52,7 +56,7 @@ def create_app() -> FastAPI:
     _ = api_prefix
 
     @app.get("/health")
-    def health_check() -> dict[str, str]:
+    def health_check() -> dict[str, str]:  # type: ignore[reportUnusedFunction]  # FastAPI 装饰器注册
         return {"status": "ok"}
 
     return app

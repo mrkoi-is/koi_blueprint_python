@@ -1,6 +1,7 @@
 """单元测试: 认证与鉴权依赖 (auth.py)"""
 
 import time
+from typing import Any
 
 import jwt
 import pytest
@@ -11,8 +12,8 @@ from app.core.auth import get_current_user, get_optional_user, require_role
 from app.core.exceptions import AuthenticationError, ForbiddenError
 
 
-def _make_token(payload: dict) -> str:
-    return jwt.encode(payload, settings.jwt_secret.get_secret_value(), algorithm="HS256")
+def _make_token(payload: dict[str, Any]) -> str:
+    return jwt.encode(payload, settings.jwt_secret.get_secret_value(), algorithm="HS256")  # type: ignore[reportUnknownMemberType]
 
 
 def _make_credentials(token: str) -> HTTPAuthorizationCredentials:
@@ -64,18 +65,18 @@ class TestGetOptionalUser:
 class TestRequireRole:
     def test_allowed_role(self) -> None:
         checker = require_role("admin", "editor")
-        user = {"sub": "1", "role": "admin"}
+        user: dict[str, Any] = {"sub": "1", "role": "admin"}
         result = checker(user)
         assert result == user
 
     def test_disallowed_role_raises(self) -> None:
         checker = require_role("admin")
-        user = {"sub": "1", "role": "viewer"}
+        user: dict[str, Any] = {"sub": "1", "role": "viewer"}
         with pytest.raises(ForbiddenError):
             checker(user)
 
     def test_missing_role_raises(self) -> None:
         checker = require_role("admin")
-        user = {"sub": "1"}
+        user: dict[str, Any] = {"sub": "1"}
         with pytest.raises(ForbiddenError):
             checker(user)

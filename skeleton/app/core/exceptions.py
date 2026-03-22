@@ -1,3 +1,6 @@
+from typing import Any
+
+
 class AppError(Exception):
     """统一业务异常基类。
 
@@ -11,15 +14,15 @@ class AppError(Exception):
         message: str,
         code: int = 500,
         status: int = 500,
-        details: dict | None = None,
+        details: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
     ) -> None:
         super().__init__(message)
         self.message = message
         self.code = code
         self.status = status
-        self.details = details or {}
-        self.headers = headers or {}
+        self.details: dict[str, Any] = details or {}
+        self.headers: dict[str, str] = headers or {}
 
 
 class NotFoundError(AppError):
@@ -52,6 +55,6 @@ class BusinessValidationError(AppError):
         self,
         message: str = "Validation failed",
         code: int = 422,
-        details: dict | None = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(message=message, code=code, status=422, details=details)

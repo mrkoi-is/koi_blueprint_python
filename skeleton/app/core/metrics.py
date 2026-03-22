@@ -24,9 +24,9 @@ def setup_metrics(app: FastAPI) -> None:
     - 请求/响应体大小
     """
     try:
-        from prometheus_fastapi_instrumentator import Instrumentator
+        from prometheus_fastapi_instrumentator import Instrumentator  # type: ignore[import-untyped]
 
-        Instrumentator(
+        Instrumentator(  # type: ignore[reportUnknownMemberType]
             should_group_status_codes=True,
             should_ignore_untemplated=True,
             should_instrument_requests_inprogress=True,
