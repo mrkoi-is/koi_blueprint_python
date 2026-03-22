@@ -40,6 +40,7 @@ class SqlAlchemyUnitOfWork(AbstractUnitOfWork):
             uow.devices.add(device)
             uow.commit()
     """
+
     def __init__(self, session_factory: Callable[[], Session]) -> None:
         self._session_factory = session_factory
         self._session: Session | None = None
