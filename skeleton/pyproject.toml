@@ -53,6 +53,7 @@ ignore = ["B008", "RUF001", "RUF002", "RUF003", "UP046"]
 pythonVersion = "3.13"
 typeCheckingMode = "strict"
 include = ["app", "tests"]
+reportUnusedFunction = false  # FastAPI 装饰器注册的函数会被误报为未使用
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

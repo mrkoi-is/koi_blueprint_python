@@ -38,7 +38,7 @@ def create_app() -> FastAPI:
     app.add_exception_handler(RequestValidationError, validation_error_handler)  # type: ignore[arg-type]
 
     @app.middleware("http")
-    async def logging_middleware(  # type: ignore[reportUnusedFunction]  # FastAPI 装饰器注册
+    async def logging_middleware(
         request: Request,
         call_next: Callable[[Request], Awaitable[Response]],
     ) -> Response:
@@ -56,7 +56,7 @@ def create_app() -> FastAPI:
     _ = api_prefix
 
     @app.get("/health")
-    def health_check() -> dict[str, str]:  # type: ignore[reportUnusedFunction]  # FastAPI 装饰器注册
+    def health_check() -> dict[str, str]:
         return {"status": "ok"}
 
     return app

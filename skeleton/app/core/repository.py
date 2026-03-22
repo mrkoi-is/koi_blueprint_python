@@ -5,12 +5,21 @@
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, Protocol, TypeVar, runtime_checkable
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+
+@runtime_checkable
+class HasId(Protocol):
+    """实体必须具备的 id 属性协议 — 用于 MemoryRepository 自动分配 ID"""
+
+    id: int | None
+
+
 T = TypeVar("T")
+E = TypeVar("E", bound=HasId)
 
 
 class AbstractRepository(ABC, Generic[T]):
@@ -74,31 +83,33 @@ class SaRepository(AbstractRepository[T]):
         return stmt
 
 
-class MemoryRepository(AbstractRepository[T]):
-    """内存替身 — 用于单元测试，无需依赖数据库"""
+class MemoryRepository(AbstractRepository[E]):
+    """内存替身 — 用于单元测试，无需依赖数据库
+
+    泛型参数 E 约束为 HasId 协议，即实体必须有 ``id: int | None`` 属性。
+    """
 
     def __init__(self) -> None:
-        self._store: dict[int, T] = {}
+        self._store: dict[int, E] = {}
         self._next_id = 1
 
-    def get(self, id: int) -> T | None:
+    def get(self, id: int) -> E | None:
         return self._store.get(id)
 
-    def add(self, entity: T) -> None:
-        entity_obj = entity
-        if not hasattr(entity_obj, "id") or entity_obj.id is None:  # type: ignore[attr-defined]
-            object.__setattr__(entity_obj, "id", self._next_id)
+    def add(self, entity: E) -> None:
+        if entity.id is None:
+            object.__setattr__(entity, "id", self._next_id)
             self._next_id += 1
-        self._store[entity_obj.id] = entity  # type: ignore[attr-defined]
+        if entity.id is not None:
+            self._store[entity.id] = entity
 
-    def list_all(self, offset: int = 0, limit: int = 20, **filters: Any) -> list[T]:
+    def list_all(self, offset: int = 0, limit: int = 20, **filters: Any) -> list[E]:
         items = list(self._store.values())
         return items[offset : offset + limit]
 
     def count(self, **filters: Any) -> int:
         return len(self._store)
 
-    def delete(self, entity: T) -> None:
-        entity_id = getattr(entity, "id", None)
-        if entity_id is not None:
-            self._store.pop(entity_id, None)
+    def delete(self, entity: E) -> None:
+        if entity.id is not None:
+            self._store.pop(entity.id, None)
